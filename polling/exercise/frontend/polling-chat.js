@@ -48,7 +48,8 @@ async function getNewMsgs() {
   allChat = json.msg
   console.log(allChat)
   render()
-  setTimeout(getNewMsgs, INTERVAL)
+  // For no pause
+  // setTimeout(getNewMsgs, INTERVAL)
 }
 
 function render() {
@@ -64,5 +65,27 @@ function render() {
 const template = (user, msg) =>
   `<li class="collection-item"><span class="badge">${user}</span>${msg}</li>`;
 
-// make the first request
-getNewMsgs();
+// // make the first request for no-pause
+// getNewMsgs();
+
+// pause-on-unfocus
+
+let timeToNextRequest = 0;
+
+// The time variable value is provided by the requestAnimationFrame
+async function rafTimer(time){
+  if(timeToNextRequest <= time){
+    await getNewMsgs();
+    // The longer the time it takes to receive the message
+    // the longer the timeToNextRequest
+    timeToNextRequest = time + INTERVAL
+  }
+  
+  // The function raftTimer runs on the main thread
+  // so keep it light
+  requestAnimationFrame(rafTimer)
+}
+
+//First call to raftTimer
+requestAnimationFrame(rafTimer)
+
